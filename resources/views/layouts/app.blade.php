@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
@@ -24,13 +24,29 @@
       <!-- Header -->
       @include('partials.header')
       <!-- Isi Main Konten -->
-       <main class="container my-4">
+       <main class="main-content">
         @yield('admin-content')
        </main>
       
     </div>
   </div>
     @stack('scripts')
+
+<script>
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const closeSidebar = document.getElementById('closeSidebar');
+    const sidebar = document.getElementById('sidebar');
+
+    // Buka sidebar
+    sidebarToggle.addEventListener('click', function () {
+        sidebar.classList.add('show');
+    });
+
+    // Tutup sidebar
+    closeSidebar.addEventListener('click', function () {
+        sidebar.classList.remove('show');
+    });
+</script>
 
 </body>
 

@@ -1,11 +1,22 @@
-<!-- Komponen untuk Sidebar di halaman admin -->
-<div class="sidebar d-flex flex-column px-3">
-    <a href="/" class="brand text-decoration-none">
-        <img src="{{ asset('asset/logo_top.png') }}" alt="Wertugo Logo" class="logo-img">
-        <span class="brand-text">WertugoAdmin</span>
-    </a>
+<!-- Sidebar -->
+<div class="sidebar d-flex flex-column px-3" id="sidebar">
+
+    <!-- Header Sidebar -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <!-- Tombol Close -->
+        <button class="btn btn-sm btn-danger d-md-none" id="closeSidebar">
+            <i class="bi bi-x-lg"></i>
+        </button>
+
+
+        <a href="/" class="brand text-decoration-none">
+            <img src="{{ asset('asset/logo_top.png') }}" alt="Wertugo Logo" class="logo-img">
+            <span class="brand-text">WertugoAdmin</span>
+        </a>
+    </div>
 
     <nav class="nav flex-column">
+
         <x-side-link href="/admin/dashboard" :active="request()->is('admin')">
             <i class="bi bi-pie-chart-fill"></i>
             <span>Dashboard</span>
@@ -16,24 +27,6 @@
             <span>Daftar User</span>
         </x-side-link>
 
-        <x-side-link href="/admin/reservasi" :active="request()->is('admin/reservasi') || request()->is('admin/reservasi-detail/*')">
-            <i class="bi bi-people-fill"></i>
-            <span>Daftar UMKM</span>
-        </x-side-link>
-
-        <x-side-link href="/admin/ulasan" :active="request()->is('admin/ulasan')">
-            <i class="bi bi-chat-dots-fill"></i>
-            <span>Verifikasi UMKM</span>
-        </x-side-link>
-
-        <form action="{{ route('logout') }}" method="POST" style="margin: 5px 0; padding: 0 20px;">
-            @csrf
-            <button type="submit" class="side-link">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Sign Out</span>
-            </button>
-        </form>
-
-
     </nav>
+
 </div>
