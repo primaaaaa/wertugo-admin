@@ -19,31 +19,29 @@ class UmkmController extends Controller
 
         if ($response->successful()){
             $apiData = $response->json();
+            
+            $stats = $apiData['stats'];
+            $paginationData = $apiData['data_umkm'];
+
 
             // 3. Bangun Paginator
             // Pastikan struktur response API kamu benar-benar dari fungsi ->paginate() 
             // sehingga memiliki key 'data', 'total', dll.
             $umkm = new LengthAwarePaginator(
-                $apiData['data'],           
-                $apiData['total'],          
-                $apiData['per_page'],       
-                $apiData['current_page'],   
+                $paginationData['data'],           
+                $paginationData['total'],          
+                $paginationData['per_page'],       
+                $paginationData['current_page'],   
                 [
                     'path' => $request->url(), 
                     'query' => $request->query()
                 ]
             );
 
-    //       dd([
-        //     '1_total_semua_data' => $users->total(),
-        //     '2_data_per_halaman' => $users->perPage(),
-        //     '3_total_halaman' => $users->lastPage(),
-        //     '4_apakah_ada_halaman_berikutnya' => $users->hasMorePages()
-    //      ]);
-
             return view('pages.daftar-umkm', [
                 'umkm' => $umkm,
-                'tableHeaders' => ['Profil UMKM', 'Status Aktif', 'Status Verifikasi', 'Join Date', 'Aksi'] // Saya ganti 'Action' ke 'Aksi' agar pas dengan Blade-mu
+                'tableHeaders' => ['Profil UMKM', 'Status Aktif', 'Status Verifikasi', 'Join Date', 'Aksi'],
+                'stats' => $stats // Saya ganti 'Action' ke 'Aksi' agar pas dengan Blade-mu
             ]);
         }
         

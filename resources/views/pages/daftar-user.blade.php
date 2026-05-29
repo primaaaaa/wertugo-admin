@@ -4,14 +4,26 @@
 @section('admin-content')
 
 
-<div class="container p-3">
+<div class="container p-4">
+
+    <div class="row g-4">
+        
+        <div class="col-12 col-sm-6 col-xl-6">
+            <x-stat-card icon="bi-people-fill" iconColor="success" cardTitle="Total User Aktif" :data="$stats['total_active']"></x-stat-card>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-6">
+            <x-stat-card icon="bi-x-circle-fill" iconColor="danger" cardTitle="Total User Ter-suspend" :data="$stats['total_suspended']"></x-stat-card>
+        </div>
+    </div>
+
     <x-data-table
     title="Daftar User"
     :data="$users"
     :headers="$tableHeaders"
     :addButton="false"
     :exportButton="false"
-    :filterOptions="[]">
+    :filterOptions="['active', 'suspe']">
 
     @forelse ($users as $index => $user)
         <tr>

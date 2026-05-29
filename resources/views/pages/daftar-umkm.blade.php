@@ -3,15 +3,30 @@
 @section('header', 'Manajemen UMKM')
 @section('admin-content')
 
-
 <div class="container p-3">
+
+    <div class="row g-4">
+        
+        <div class="col-12 col-sm-6 col-xl-4">
+            <x-stat-card icon="bi-shop" iconColor="success" cardTitle="Total UMKM Aktif" :data="$stats['total_umkm']"></x-stat-card>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-4">
+            <x-stat-card icon="bi-check-circle-fill" iconColor="primary" cardTitle="Total UMKM Terverifikasi" :data="$stats['verified_umkm']"></x-stat-card>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-4">
+            <x-stat-card icon="bi-x-circle-fill" iconColor="danger" cardTitle="UMKM Ter-suspend" :data="0"></x-stat-card>
+        </div>
+    </div>
+
     <x-data-table
     title="Daftar UMKM"
     :data="$umkm"
     :headers="$tableHeaders"
     :addButton="false"
     :exportButton="false"
-    :filterOptions="[]">
+    :filterOptions="['verified', 'unverified', 'pending']">
 
     @forelse ($umkm as $index => $user)
         <tr>
@@ -41,7 +56,7 @@
             </td>
 
             <td>
-                <span class="{{ $user['verification_status'] === 'verified' ? 'badge text-bg-success' : $user['verification_status'] === 'pending' ? 'badge text-bg-warning' : 'badge text-bg-secondary'}}">{{ $user['verification_status'] ?? 'verified' }}</span>
+                <span class="{{ ($user['verification_status'] === 'verified' ? 'badge text-bg-success' : $user['verification_status'] === 'pending') ? 'badge text-bg-warning' : 'badge text-bg-secondary'}}">{{ $user['verification_status'] ?? 'verified' }}</span>
             </td>
 
             <td>

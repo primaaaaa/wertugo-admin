@@ -593,6 +593,15 @@ body {
     color: #2d5a2e;
 }
 
+/* Sedikit custom CSS untuk memastikan border terlihat soft seperti di gambar */
+.card-stats {
+    border: 1px solid #dcdfe4; /* Warna border abu-abu kehijauan yang soft */
+}
+.icon-box {
+    width: 48px;
+    height: 48px;
+}
+
 .btn-export {
     background-color: #40723f;
     border: none;
