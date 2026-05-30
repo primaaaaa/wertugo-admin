@@ -14,11 +14,14 @@ class AdminAuth
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
+
     public function handle(Request $request, Closure $next): Response
     {
+        // Jika tidak ada token ATAU role bukan admin, langsung lempar error 403
         if(!Session::has('api_token') || Session::get('user_data')['role'] !== 'admin'){
-            return redirect('/login')->withErrors(['email' => 'Anda bukan admin.']);
+            abort(403); 
         }
+        
         return $next($request);
     }
 }
