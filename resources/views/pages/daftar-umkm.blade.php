@@ -57,7 +57,7 @@
             </td>
 
             <td>
-                <span class="{{ ($user['verification_status'] === 'verified' ? 'badge text-bg-success' : $user['verification_status'] === 'pending') ? 'badge text-bg-warning' : 'badge text-bg-secondary'}}">{{ $user['verification_status'] ?? 'verified' }}</span>
+                <span class="{{ $user['verification_status'] === 'verified' ? 'badge text-bg-success' : ($user['verification_status'] === 'pending' ? 'badge text-bg-warning' : 'badge text-bg-secondary')}}">{{ $user['verification_status'] ?? 'unverified' }}</span>
             </td>
 
             <td>
