@@ -27,7 +27,9 @@ Route::middleware(['guest.admin'])->group(function () {
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
+Route::get('/', function () {
+    return view('pages.landing.index');
+});
 
 
 
