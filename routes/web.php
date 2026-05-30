@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UmkmController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VerificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -34,9 +35,16 @@ Route::get('/', function () {
 
 
 Route::middleware(['admin.auth'])->group(function () {
+    
+    // Tampilkan Halaman
     Route::get('/admin', [DashboardController::class, 'index']);
     Route::get('/admin/users', [UserController::class, 'index'])->name('daftar-user');
     Route::get('/admin/umkm', [UmkmController::class, 'index'])->name('daftar-umkm');
+    Route::get('/admin/verifikasi-umkm', [VerificationController::class, 'index'])->name('daftar-verifikasi');
+
+
+
+    Route::post('/admin/verifikasi/{id}/verify', [UmkmController::class, 'verifyUmkm'])->name('umkm.verify');
 });
 
 

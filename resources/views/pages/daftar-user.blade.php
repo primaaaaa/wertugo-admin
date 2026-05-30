@@ -4,8 +4,10 @@
 @section('admin-content')
 
 
-<div class="container p-4">
-
+<div class="container-fluid p-4">
+    <div class="mb-5">
+        <h3 class="fw-bold text-dark mb-2">Daftar User</h3>
+    </div>
     <div class="row g-4">
         
         <div class="col-12 col-sm-6 col-xl-6">
@@ -29,11 +31,7 @@
         <tr>
             <td>
                 <div class="d-flex align-items-center gap-3">
-                    
-                    <img src="{{ $user['foto_profil'] === 'default-profile.png' ? asset('images/default-profile.png') : env('WERTUGO_API') . '/storage/profiles/' . $user['foto_profil'] }}" 
-                        alt="Profile" 
-                        class="rounded-circle border border-light" 
-                        style="width: 40px; height: 40px; object-fit: cover;">
+                    <x-default-profile-user :foto="$user['foto_profil'] ?? null" />
 
                     <div class="d-flex flex-column lh-sm">
                         

@@ -2,35 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use Http;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Session;
+use Illuminate\Support\Facades\Session;
 
-class UmkmController extends Controller
+class VerificationController extends Controller
 {
-    public function index(Request $request){
-         // 1. Tangkap halaman saat ini (default: 1)
+    public function index(Request $request)
+    {
         $page = $request->input('page', 1);
-
         $token = Session::get('api_token');
-
-        $url = env('WERTUGO_API').'/umkm/getumkm';
         
-        // 2. Kirim parameter page ke API
+        $url = env('WERTUGO_API').'/umkm/getverifylist'; // Pastikan URL API kamu benar
+        
         $response = Http::withToken($token)->get($url, ['page' => $page]);
 
         if ($response->successful()){
             $apiData = $response->json();
             
+            // Tangkap 3 bagian data sesuai yang dikirim API
             $stats = $apiData['stats'];
-            $paginationData = $apiData['data_umkm'];
+            $pendingCards = $apiData['pending_cards']; // Ini bentuknya array biasa (karena pakai ->get())
+            $paginationData = $apiData['history_table']; // Ini bentuknya paginator
 
-
-            // 3. Bangun Paginator
-            // Pastikan struktur response API kamu benar-benar dari fungsi ->paginate() 
-            // sehingga memiliki key 'data', 'total', dll.
-            $umkm = new LengthAwarePaginator(
+            // Bangun Paginator untuk Tabel Riwayat
+            $historyPaginator = new LengthAwarePaginator(
                 $paginationData['data'],           
                 $paginationData['total'],          
                 $paginationData['per_page'],       
@@ -41,10 +38,11 @@ class UmkmController extends Controller
                 ]
             );
 
-            return view('pages.daftar-umkm', [
-                'umkm' => $umkm,
-                'tableHeaders' => ['Profil UMKM', 'Status Aktif', 'Status Verifikasi', 'Join Date', 'Aksi'],
-                'stats' => $stats // Saya ganti 'Action' ke 'Aksi' agar pas dengan Blade-mu
+            return view('pages.verifikasi-umkm', [
+                'stats' => $stats,
+                'pendingCards' => $pendingCards, // Kirim untuk 3 card teratas
+                'historyData' => $historyPaginator, // Kirim untuk tabel
+                'tableHeaders' => ['Nama UMKM', 'Kategori', 'Pemilik', 'Status Verifikasi', 'Status Akun', 'Aksi']
             ]);
         }
 
@@ -64,9 +62,10 @@ class UmkmController extends Controller
         $response = Http::withToken($token)->put(env('WERTUGO_API').'/umkm/'.$id.'/verify');
 
         if ($response->successful()) {
-            return back()->with('success', 'Status UMKM berhasil diubah menjadi Verified!');
+            return back()->with('success', 'Status Verifikasi UMKM berhasil diubah menjadi Verified!');
         }
 
-        return back()->withErrors(['msg' => 'Gagal memverifikasi UMKM. Pastikan server aktif.']);
+        $errorMsg = $response->json()['message'] ?? 'Gagal memverifikasi UMKM.';
+        return back()->withErrors(['msg' => $errorMsg]);
     }
 }

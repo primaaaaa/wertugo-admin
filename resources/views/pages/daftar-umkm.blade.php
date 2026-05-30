@@ -3,8 +3,13 @@
 @section('header', 'Manajemen UMKM')
 @section('admin-content')
 
-<div class="container p-3">
-
+<div class="container-fluid p-4">
+    <div class="mb-5">
+        <h3 class="fw-bold text-dark mb-2">Daftar UMKM</h3>
+        <p class="text-muted" style="font-size: 15px;">
+            Kelola dan pantau seluruh mitra UMKM yang terdaftar di Wertugo.
+        </p>
+    </div>
     <div class="row g-4">
         
         <div class="col-12 col-sm-6 col-xl-4">
@@ -33,11 +38,7 @@
             <td>
                 <div class="d-flex align-items-center gap-3">
                     
-                    <img src="{{ $user['foto_profil'] === 'default-profile.png' ? asset('images/default-profile.png') : env('WERTUGO_API') . '/storage/profiles/' . $user['foto_profil'] }}" 
-                        alt="Profile" 
-                        class="rounded-circle border border-light" 
-                        style="width: 40px; height: 40px; object-fit: cover;">
-
+                    <x-default-profile-umkm :foto="$user['foto_profil'] ?? null"></x-default-profile-umkm>
                     <div class="d-flex flex-column lh-sm">
                         
                         <span class="fw-semibold text-dark" style="font-size: 14px;">
