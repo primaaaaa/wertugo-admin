@@ -16,11 +16,11 @@
         </div>
 
         <div class="col-12 col-sm-6 col-xl-3">
-            <x-stat-card icon="bi-clock-fill" iconColor="warning" cardTitle="Verifikasi Pending" :data="0"></x-stat-card>
+            <x-stat-card icon="bi-clock-fill" iconColor="warning" cardTitle="Verifikasi Pending" :data="$stats['total_verifikasi']"></x-stat-card>
         </div>
 
         <div class="col-12 col-sm-6 col-xl-3">
-            <x-stat-card icon="bi-exclamation-triangle" iconColor="danger" cardTitle="Laporan Masuk" :data="0"></x-stat-card>
+            <x-stat-card icon="bi-exclamation-triangle" iconColor="danger" cardTitle="Laporan Masuk" :data="$stats['total_report']"></x-stat-card>
         </div>
 
     </div>

@@ -107,22 +107,53 @@
                 </tr>
             @endforelse
 
-            <x-slot name="footer">
-                <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-center bg-white gap-3" 
-                     style="width: calc(100% + 40px); margin: 0 -20px -20px -20px; padding: 15px 20px; border-top: 1px solid #e2e8f0; border-radius: 0 0 12px 12px;">
+        <x-slot name="footer">
+                {{-- TAMBAHAN: flex-column (untuk HP) dan flex-md-row (untuk Laptop), serta gap-3 biar ada jarak saat numpuk --}}
+                <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-center bg-light gap-3" 
+                    style="width: calc(100% + 40px); margin: 0 -20px -20px -20px; padding: 15px 20px; border-top: 1px solid #dee2e6; border-radius: 0 0 12px 12px;">
                     
-                    <p class="pagination-info mb-0 text-muted text-center text-md-start" style="font-size: 13px;">
-                        Menampilkan <strong>{{ $reports->firstItem() ?? 0 }} dari {{ $reports->total() ?? 0 }} laporan</strong>
+                    {{-- TAMBAHAN: text-center di HP, text-md-start di Laptop --}}
+                    <p class="pagination-info mb-0 text-muted text-center text-md-start">
+                        Menampilkan <strong>{{ $reports->firstItem() ?? 0 }} - {{ $reports->lastItem() ?? 0 }}</strong> dari <strong>{{ $reports->total() }}</strong> user
                     </p>
                     
-                    @if(isset($reports) && $reports->hasPages())
-                        <nav>
-                            {{ $reports->links('pagination::bootstrap-5') }}
-                        </nav>
-                    @endif
+                    <nav>
+                        <ul class="custom-pagination mb-0 justify-content-center flex-wrap">
+                            
+                            {{-- Tombol Previous --}}
+                            @if ($reports->onFirstPage())
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="bi bi-chevron-left"></i></span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $reports->previousPageUrl() }}"><i class="bi bi-chevron-left"></i></a>
+                                </li>
+                            @endif
+
+                            {{-- Deretan Angka Halaman --}}
+                            @foreach ($reports->getUrlRange(1, $reports->lastPage()) as $page => $url)
+                                <li class="page-item {{ $page == $reports->currentPage() ? 'active' : '' }}">
+                                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                </li>
+                            @endforeach
+
+                            {{-- Tombol Next --}}
+                            @if ($reports->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $reports->nextPageUrl() }}"><i class="bi bi-chevron-right"></i></a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="bi bi-chevron-right"></i></span>
+                                </li>
+                            @endif
+                            
+                        </ul>
+                    </nav>
+                    
                 </div>
             </x-slot>
-
         </x-data-table>
     </div>
 </div>
