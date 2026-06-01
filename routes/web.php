@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UmkmController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
@@ -41,8 +42,12 @@ Route::middleware(['admin.auth'])->group(function () {
     Route::get('/admin/users', [UserController::class, 'index'])->name('daftar-user');
     Route::get('/admin/umkm', [UmkmController::class, 'index'])->name('daftar-umkm');
     Route::get('/admin/verifikasi-umkm', [VerificationController::class, 'index'])->name('daftar-verifikasi');
+    // Route::get('/admin/report', [ReportController::class, 'index'])->name('daftar-laporan');
 
+    Route::post('/admin/report/{id}/tindak', [ReportController::class, 'tindakReport'])->name('report.tindak');
 
+    Route::get('/admin/report', [ReportController::class, 'index'])->name('report.index');
+    Route::post('/admin/report/{id}/tindak', [ReportController::class, 'tindakReport'])->name('report.tindak');
 
     Route::post('/admin/verifikasi/{id}/verify', [UmkmController::class, 'verifyUmkm'])->name('umkm.verify');
 });
