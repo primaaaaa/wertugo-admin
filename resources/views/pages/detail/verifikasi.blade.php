@@ -148,8 +148,8 @@
                             <p class="text-dark fw-medium mb-2" style="font-size: 13px;">{{ $doc['nama'] }}</p>
                             
                             @if($doc['file'])
-                                {{-- JIKA DOKUMEN ADA --}}
-                                <a href="{{ env('WERTUGO_API') . '/storage/' . $doc['file'] }}" target="_blank" class="doc-bar-uploaded mb-1">
+                                {{-- Hapus target="_blank" --}}
+                                <a href="{{ env('WERTUGO_API') . '/view-document?file=' . urlencode($doc['file']) }}" class="doc-bar-uploaded mb-1">
                                     <div class="d-flex align-items-center gap-2">
                                         <i class="bi bi-image"></i>
                                         <span style="font-size: 14px;">{{ basename($doc['file']) }}</span>

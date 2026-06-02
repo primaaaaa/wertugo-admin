@@ -100,7 +100,7 @@
                         </div>
 
                         <div class="d-flex gap-2 mt-auto">
-                            <button class="btn btn-light rounded-pill flex-grow-1 text-muted fw-semibold border">Detail</button>
+                            <a href="{{ route('verifikasi.detail', $pending['id'] ?? $pending['_id']) }}" class="btn btn-light rounded-pill flex-grow-1 text-muted fw-semibold border">Detail</a>
                             <form action="{{ route('umkm.verify', $pending['id'] ?? $pending['_id']) }}" method="POST" class="flex-grow-1 d-flex">
                                 @csrf
                                 @method('PUT') {{-- Pastikan method PUT terbaca --}}
@@ -171,12 +171,12 @@
                     </td>
                     
                     <td>
-                        <a href="#" class="btn btn-outline-success btn-sm">
+                        <a href="{{ route('verifikasi.detail', $history['id'] ?? $history['_id']) }}" class="btn btn-outline-success btn-sm">
                             <i class="bi bi-eye"></i>
                         </a>
-                        <a href="#" class="btn btn-outline-danger btn-sm">
+                        <!-- <a href="#" class="btn btn-outline-danger btn-sm">
                             <i class="bi bi-trash"></i>
-                        </a>
+                        </a> -->
                     </td>
                 </tr>
             @empty
