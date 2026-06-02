@@ -41,7 +41,7 @@ class VerificationController extends Controller
             return view('pages.verifikasi-umkm', [
                 'stats' => $stats,
                 'pendingCards' => $pendingCards, // Kirim untuk 3 card teratas
-                'historyData' => $historyPaginator, // Kirim untuk tabel
+                'historyTable' => $historyPaginator, // Kirim untuk tabel
                 'tableHeaders' => ['Nama UMKM', 'Kategori', 'Pemilik', 'Status Verifikasi', 'Status Akun', 'Aksi']
             ]);
         }

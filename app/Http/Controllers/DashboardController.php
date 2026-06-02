@@ -20,7 +20,6 @@ class DashboardController extends Controller
             ];
 
         if($response->successful()){
-            // Timpa Nilai Default
             $stats = $response->json();
         }
 

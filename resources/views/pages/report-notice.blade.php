@@ -20,6 +20,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
+    
     <div class="mb-5">
         <h3 class="fw-bold text-dark mb-1">Report Notice</h3>
         <p class="text-muted small">Kelola dan tindak lanjuti laporan pelanggaran dari pengguna.</p>
@@ -97,15 +98,12 @@
                         {{ isset($report['created_at']) ? \Carbon\Carbon::parse($report['created_at'])->format('d M Y') : '-' }}
                     </td>
 
-                    <!-- 6. AKSI (TINDAK) -->
                     <td class="text-center">
                         <div class="d-flex flex-column gap-1 align-items-center justify-content-center">
-                            <!-- <a href="#" class="text-success text-decoration-none fw-bold" style="font-size: 12px;">Lihat</a> -->
                             
                             @if(isset($report['report_status']) && $report['report_status'] === 'finished')
                                 <span class="badge bg-secondary rounded-pill px-3 py-2 mt-1">Selesai</span>
                             @else
-                                <!-- TOMBOL PEMICU MODAL (TETAP DI SINI) -->
                                 <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 py-1 fw-bold shadow-sm mt-1" 
                                         style="font-size: 12px; background-color: #b91c1c; border: none;" 
                                         data-bs-toggle="modal" data-bs-target="#tindakModal{{ $loop->iteration }}">
@@ -123,14 +121,12 @@
                 </tr>
             @endforelse
 
-        <x-slot name="footer">
-                {{-- TAMBAHAN: flex-column (untuk HP) dan flex-md-row (untuk Laptop), serta gap-3 biar ada jarak saat numpuk --}}
+            <x-slot name="footer">
                 <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-center bg-light gap-3" 
                     style="width: calc(100% + 40px); margin: 0 -20px -20px -20px; padding: 15px 20px; border-top: 1px solid #dee2e6; border-radius: 0 0 12px 12px;">
                     
-                    {{-- TAMBAHAN: text-center di HP, text-md-start di Laptop --}}
                     <p class="pagination-info mb-0 text-muted text-center text-md-start">
-                        Menampilkan <strong>{{ $reports->firstItem() ?? 0 }} - {{ $reports->lastItem() ?? 0 }}</strong> dari <strong>{{ $reports->total() }}</strong> user
+                        Menampilkan <strong>{{ $reports->firstItem() ?? 0 }} - {{ $reports->lastItem() ?? 0 }}</strong> dari <strong>{{ $reports->total() }}</strong> laporan
                     </p>
                     
                     <nav>
@@ -174,10 +170,9 @@
     </div>
 </div>
 
-
+{{-- KUMPULAN MODAL --}}
 @foreach($reports as $report)
     @if(isset($report['report_status']) && $report['report_status'] !== 'finished')
-        <!-- Perhatikan ID-nya pakai $loop->iteration -->
         <div class="modal fade" id="tindakModal{{ $loop->iteration }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 rounded-4 shadow-lg">
@@ -194,35 +189,33 @@
                         <input type="hidden" name="comment_id" value="{{ $report['comment_id'] ?? '' }}">
                         
                         <div class="modal-body px-4 py-3 text-start">
-                            <!-- Kotak Komentar yang Dilaporkan -->
                             <div class="bg-light rounded-3 p-3 mb-4 border" style="background-color: #f8fafc !important;">
                                 <small class="text-success fw-bold d-block mb-2" style="font-size: 10px; letter-spacing: 0.5px; color: #2d6a4f !important;">
-                                    KOMENTAR YANG DILAPORKAN
+                                    KONTEN YANG DILAPORKAN
                                 </small>
                                 <p class="mb-0 text-dark fst-italic" style="font-size: 13px;">
-                                    "{{ $report['report_message'] ?? 'Komentar tidak tersedia.' }}"
+                                    "{{ $report['report_message'] ?? 'Konten tidak tersedia.' }}"
                                 </p>
                             </div>
 
-                            <!-- Dropdown Aksi Komentar -->
                             <div class="mb-3">
-                                <label class="form-label fw-bold text-dark" style="font-size: 13px;">Aksi Komentar</label>
+                                <label class="form-label fw-bold text-dark" style="font-size: 13px;">
+                                    Tindakan Konten <span class="text-muted fw-normal">(Pilih abaikan jika ini laporan UMKM)</span>
+                                </label>
                                 <select name="aksi_komentar" class="form-select form-select-sm bg-light border-0 py-2" style="font-size: 13px;">
+                                    <option value="biarkan">Biarkan (Abaikan / Bukan Komentar)</option>
                                     <option value="hapus">Hapus Komentar</option>
-                                    <option value="biarkan">Biarkan Komentar (Abaikan)</option>
                                 </select>
                             </div>
 
-                            <!-- Dropdown Status Akun -->
                             <div class="mb-4">
-                                <label class="form-label fw-bold text-dark" style="font-size: 13px;">Status Akun Komentator</label>
+                                <label class="form-label fw-bold text-dark" style="font-size: 13px;">Status Akun Terlapor</label>
                                 <select name="status_akun" class="form-select form-select-sm bg-light border-0 py-2" style="font-size: 13px;">
-                                    <option value="aktif">Tetap Aktif</option>
-                                    <option value="suspend">Suspend Akun</option>
+                                    <option value="aktif">Beri Peringatan (Tetap Aktif)</option>
+                                    <option value="suspend">Suspend Akun Terlapor</option>
                                 </select>
                             </div>
 
-                            <!-- Catatan Internal -->
                             <div class="mb-2">
                                 <label class="form-label fw-bold text-dark" style="font-size: 13px;">
                                     Catatan Internal <span class="text-muted fw-normal">(Opsional)</span>
@@ -246,5 +239,5 @@
         </div>
     @endif
 @endforeach
-@endsection
 
+@endsection

@@ -2,34 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use Http;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Session;
 
 class UmkmController extends Controller
 {
-    public function index(Request $request){
-         // 1. Tangkap halaman saat ini (default: 1)
+    /**
+     * Menampilkan halaman Daftar/Tabel UMKM
+     */
+    public function index(Request $request)
+    {
         $page = $request->input('page', 1);
-
         $token = Session::get('api_token');
 
-        $url = env('WERTUGO_API').'/umkm/getumkm';
+        $url = env('WERTUGO_API') . '/umkm/getumkm'; 
         
-        // 2. Kirim parameter page ke API
         $response = Http::withToken($token)->get($url, ['page' => $page]);
 
-        if ($response->successful()){
+        if ($response->successful()) {
             $apiData = $response->json();
             
             $stats = $apiData['stats'];
             $paginationData = $apiData['data_umkm'];
 
-
-            // 3. Bangun Paginator
-            // Pastikan struktur response API kamu benar-benar dari fungsi ->paginate() 
-            // sehingga memiliki key 'data', 'total', dll.
             $umkm = new LengthAwarePaginator(
                 $paginationData['data'],           
                 $paginationData['total'],          
@@ -44,16 +41,47 @@ class UmkmController extends Controller
             return view('pages.daftar-umkm', [
                 'umkm' => $umkm,
                 'tableHeaders' => ['Profil UMKM', 'Status Aktif', 'Status Verifikasi', 'Join Date', 'Aksi'],
-                'stats' => $stats // Saya ganti 'Action' ke 'Aksi' agar pas dengan Blade-mu
+                'stats' => $stats
             ]);
         }
 
-        if($response->status() === 401){
+        if ($response->status() === 401) {
             Session::flush();
-            return redirect('/login')->withErrors(['email' => 'Sesi telah Habis. Silahkan login ulang']);
+            return redirect('/login')->withErrors(['email' => 'Sesi telah habis. Silakan login ulang.']);
         }
         
-        return abort($response->status(), 'Gagal mengambil data dari server.');
+        return abort($response->status(), 'Gagal mengambil data daftar UMKM dari server.');
+    }
+
+    /**
+     * Menampilkan halaman Detail UMKM (Desain Premium)
+     */
+    public function showDetail($id)
+    {
+        $token = Session::get('api_token');
+        
+        // Pastikan endpoint ini sama persis dengan yang ada di Backend
+        $url = env('WERTUGO_API') . '/umkm/' . $id;
+
+        $response = Http::withToken($token)->get($url);
+
+        if ($response->successful()) {
+            $apiData = $response->json();
+            
+            // Ambil objek 'data' yang berisi profil_umkm, pemilik, keamanan, dan ulasan
+            $detailData = $apiData['data']; 
+
+            return view('pages.detail.umkm', [
+                'detail' => $detailData
+            ]);
+        }
+
+        if ($response->status() === 401) {
+            Session::flush();
+            return redirect('/login')->withErrors(['email' => 'Sesi telah habis. Silakan login ulang.']);
+        }
+
+        return back()->withErrors(['msg' => 'Gagal mengambil detail UMKM. Pastikan data tempat usaha masih tersedia di database.']);
     }
 
     public function verifyUmkm(Request $request, $id)
@@ -69,5 +97,7 @@ class UmkmController extends Controller
 
         return back()->withErrors(['msg' => 'Gagal memverifikasi UMKM. Pastikan server aktif.']);
     }
-
 }
+
+
+

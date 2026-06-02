@@ -52,7 +52,7 @@
         overflow: hidden;
     }
 
-    /* Elemen dekorasi air di belakang quote (opsional) */
+    /* Elemen dekorasi air di belakang quote */
     .quote-box::after {
         content: '\F5CC'; /* Ikon shield bi-shield-fill dari bootstrap icons */
         font-family: bootstrap-icons;
@@ -73,20 +73,19 @@
 
 <div class="container-fluid py-4 px-4">
     
-    <!-- BARIS 1: HEADER PROFIL -->
     <div class="card card-rounded bg-gradient-light-green shadow-sm mb-4">
         <div class="card-body p-4 d-flex align-items-center gap-4 flex-wrap">
             <div class="position-relative">
                 {{-- Gunakan default image jika foto_profil dari db kosong atau tidak valid --}}
-                <x-default-profile-user :foto="$user['foto_profil'] ?? null" pages="detail-user" />
+                <x-default-profile-user :foto="$detail['profil']['foto_profil'] ?? null" pages="detail-user" />
             </div>
 
             <div class="flex-grow-1">
                 <div class="d-flex align-items-center gap-3 mb-1">
-                    <h3 class="fw-bold text-dark mb-0">{{ $detail['profil']['username'] }}</h3>
+                    <h3 class="fw-bold text-dark mb-0">{{ $detail['profil']['username'] ?? 'User' }}</h3>
                     
                     {{-- Status Badge --}}
-                    @if($detail['profil']['account_status'] === 'active')
+                    @if(isset($detail['profil']['account_status']) && $detail['profil']['account_status'] === 'active')
                         <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1">
                             <i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i> Aktif
                         </span>
@@ -97,13 +96,13 @@
                     @endif
                 </div>
                 
-                <p class="text-muted mb-3">{{ $detail['profil']['email'] }}</p>
+                <p class="text-muted mb-3">{{ $detail['profil']['email'] ?? '-' }}</p>
                 
                 {{-- Tombol Suspend --}}
-                @if($detail['profil']['account_status'] === 'active')
+                @if(isset($detail['profil']['account_status']) && $detail['profil']['account_status'] === 'active')
                     <form action="#" method="POST" class="d-inline"> {{-- Route untuk suspend disiapkan di sini --}}
                         @csrf
-                        <button class="btn bg-danger-subtle text-danger fw-bold rounded-pill border-0 px-4 py-2" style="font-size: 14px;">
+                        <button type="submit" class="btn bg-danger-subtle text-danger fw-bold rounded-pill border-0 px-4 py-2 shadow-sm" style="font-size: 14px;" onclick="return confirm('Apakah Anda yakin ingin melakukan Suspend pada akun ini?');">
                             <i class="bi bi-ban me-1"></i> Suspend User
                         </button>
                     </form>
@@ -112,9 +111,7 @@
         </div>
     </div>
 
-    <!-- BARIS 2: INFORMASI & KEAMANAN -->
     <div class="row g-4 mb-4">
-        <!-- 2A. Kolom Informasi User -->
         <div class="col-12 col-md-4">
             <div class="card card-rounded shadow-sm h-100 p-2">
                 <div class="card-body">
@@ -128,7 +125,7 @@
                     <div class="mb-3 pb-3 border-bottom">
                         <small class="text-muted fw-bold d-block mb-1" style="font-size: 11px; letter-spacing: 0.5px;">ID AKUN</small>
                         <span class="fw-semibold text-dark">
-                            #USR-{{ strtoupper(substr($detail['profil']['id'], -8)) }}
+                            #USR-{{ strtoupper(substr($detail['profil']['id'] ?? 'UNKNOWN', -8)) }}
                         </span>
                     </div>
 
@@ -142,7 +139,7 @@
                     <div class="mb-3 pb-3 border-bottom">
                         <small class="text-muted fw-bold d-block mb-2" style="font-size: 11px; letter-spacing: 0.5px;">ROLE</small>
                         <span class="badge bg-light border text-secondary rounded-pill px-3 py-1 fw-medium">
-                            {{ ucfirst($detail['profil']['role']) }}
+                            {{ ucfirst($detail['profil']['role'] ?? 'User') }}
                         </span>
                     </div>
 
@@ -156,7 +153,6 @@
             </div>
         </div>
 
-        <!-- 2B. Kolom Keamanan & Laporan -->
         <div class="col-12 col-md-8">
             <div class="card card-rounded shadow-sm h-100 p-2">
                 <div class="card-body">
@@ -168,19 +164,17 @@
                     </div>
 
                     <div class="d-flex align-items-center flex-wrap gap-4 mt-2">
-                        <!-- Indikator Angka Merah -->
                         <div class="report-badge-container shadow-sm flex-shrink-0">
-                            <h2 class="fw-bold text-danger mb-0" style="font-size: 2.5rem;">{{ $detail['keamanan']['total_laporan'] }}</h2>
+                            <h2 class="fw-bold text-danger mb-0" style="font-size: 2.5rem;">{{ $detail['keamanan']['total_laporan'] ?? 0 }}</h2>
                             <small class="text-danger fw-bold" style="font-size: 10px; letter-spacing: 1px;">LAPORAN</small>
                         </div>
 
-                        <!-- Pesan Teks -->
                         <div class="flex-grow-1">
                             <p class="text-dark fw-medium mb-3" style="font-size: 15px;">
-                                Akun ini telah menerima {{ $detail['keamanan']['total_laporan'] }} laporan dari pemilik UMKM atau sistem terkait pelanggaran kebijakan.
+                                Akun ini telah menerima {{ $detail['keamanan']['total_laporan'] ?? 0 }} laporan dari pemilik UMKM atau sistem terkait pelanggaran kebijakan.
                             </p>
                             
-                            @if($detail['keamanan']['pesan_laporan_terbaru'])
+                            @if(!empty($detail['keamanan']['pesan_laporan_terbaru']))
                                 <div class="quote-box">
                                     <span class="quote-text">"{{ $detail['keamanan']['pesan_laporan_terbaru'] }}"</span>
                                     <br>
@@ -188,7 +182,7 @@
                                 </div>
                             @else
                                 <div class="alert alert-success border-0 py-2">
-                                    <i class="bi bi-check-circle me-2"></i> Belum ada catatan pelanggaran.
+                                    <i class="bi bi-check-circle-fill me-2"></i> Belum ada catatan pelanggaran.
                                 </div>
                             @endif
                         </div>
@@ -198,7 +192,6 @@
         </div>
     </div>
 
-    <!-- BARIS 3: RIWAYAT REVIEW/KOMENTAR -->
     <div class="card card-rounded shadow-sm p-2 mb-4">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -209,11 +202,10 @@
                     <h6 class="fw-bold mb-0 text-dark">Riwayat Review/Komentar</h6>
                 </div>
                 <span class="badge bg-light border text-secondary rounded-pill px-3 py-2 fw-medium">
-                    Total: {{ count($detail['komentar']) }} Review
+                    Total: {{ $detail['statistik']['total_komentar'] ?? (is_array($detail['komentar']) ? count($detail['komentar']) : 0) }} Review
                 </span>
             </div>
 
-            <!-- Grid Review Cards -->
             <div class="row g-3">
                 @forelse($detail['komentar'] as $komen)
                     <div class="col-12 col-md-6">
@@ -221,12 +213,14 @@
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <div>
-                                        <h6 class="fw-bold text-success mb-1">{{ $komen['umkm']['username'] ?? 'UMKM Tidak Tersedia' }}</h6>
+                                        {{-- PERBAIKAN: Menggunakan nama_usaha dari tabel UMKM --}}
+                                        <h6 class="fw-bold text-success mb-1">
+                                            <i class="bi bi-shop me-1"></i> {{ $komen['umkm']['nama_usaha'] ?? 'UMKM Tidak Tersedia' }}
+                                        </h6>
                                         <small class="text-muted" style="font-size: 12px;">
                                             Dikomentari pada {{ isset($komen['created_at']) ? \Carbon\Carbon::parse($komen['created_at'])->format('d M Y') : '-' }}
                                         </small>
                                     </div>
-                                    <!-- Asumsi rating 5 bintang, bisa disesuaikan kalau ada field rating -->
                                     <div class="text-warning" style="font-size: 12px;">
                                         <i class="bi bi-star-fill"></i>
                                         <i class="bi bi-star-fill"></i>
@@ -236,7 +230,7 @@
                                     </div>
                                 </div>
                                 <p class="text-dark mt-3 mb-0" style="font-size: 14px;">
-                                    "{{ $komen['content'] }}"
+                                    "{{ $komen['content'] ?? '' }}"
                                 </p>
                             </div>
                         </div>
@@ -248,7 +242,8 @@
                 @endforelse
             </div>
 
-            @if(count($detail['komentar']) > 0)
+            {{-- Tampilkan tombol hanya jika ada lebih dari 4 komentar --}}
+            @if(is_array($detail['komentar']) && count($detail['komentar']) > 4)
                 <div class="text-center mt-4">
                     <button class="btn btn-outline-success rounded-pill px-4 py-2 fw-bold" style="font-size: 14px;">
                         Lihat Lebih Banyak <i class="bi bi-chevron-down ms-1"></i>

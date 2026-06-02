@@ -42,6 +42,14 @@
         </p>
     </div>
 
+    {{-- PESAN NOTIFIKASI SUKSES/ERROR --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <div class="mb-5">
         {{-- CEK APAKAH ADA DATA ANTREAN, JIKA ADA BARU TAMPILKAN HEADERNYA --}}
         @if(isset($stats['total_verification_pending']) && $stats['total_verification_pending'] > 0)
@@ -69,24 +77,24 @@
                                 <i class="bi bi-shop"></i>
                             </div>
                             <div>
-                                <h6 class="fw-bold mb-1">
-                                    {{ $pending['umkm']['username'] ?? 'Nama Tidak Tersedia' }}
+                                <h6 class="fw-bold mb-1 text-truncate" style="max-width: 200px;">
+                                    {{ $pending['umkm']['nama_usaha'] ?? 'Nama Usaha Kosong' }}
                                 </h6>
-                                <small class="text-muted">UMKM Baru</small>
+                                <small class="text-muted">Pemilik: {{ $pending['umkm']['user']['username'] ?? '-' }}</small>
                             </div>
                         </div>
 
                         <div class="mb-4" style="font-size: 13px;">
                             <div class="d-flex justify-content-between mb-1">
                                 <span class="text-muted">Email</span>
-                                <span class="fw-semibold text-dark">
-                                    {{ $pending['umkm']['email'] ?? '-' }}
+                                <span class="fw-semibold text-dark text-truncate" style="max-width: 150px;">
+                                    {{ $pending['umkm']['user']['email'] ?? '-' }}
                                 </span>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <span class="text-muted">Dikirim</span>
                                 <span class="fw-semibold text-dark">
-                                    {{ isset($pending['created_at']) ? \Carbon\Carbon::parse($pending['created_at'])->format('d M Y, H:i') : 'Tanggal tidak tersedia' }}
+                                    {{ isset($pending['created_at']) ? \Carbon\Carbon::parse($pending['created_at'])->format('d M Y, H:i') : '-' }}
                                 </span>
                             </div>
                         </div>
@@ -95,7 +103,8 @@
                             <button class="btn btn-light rounded-pill flex-grow-1 text-muted fw-semibold border">Detail</button>
                             <form action="{{ route('umkm.verify', $pending['id'] ?? $pending['_id']) }}" method="POST" class="flex-grow-1 d-flex">
                                 @csrf
-                                <button type="submit" class="btn wertugo-btn-green rounded-pill w-100 fw-semibold">Verifikasi</button>
+                                @method('PUT') {{-- Pastikan method PUT terbaca --}}
+                                <button type="submit" class="btn wertugo-btn-green rounded-pill w-100 fw-semibold" onclick="return confirm('Yakin ingin memverifikasi UMKM ini?');">Verifikasi</button>
                             </form>
                         </div>
                     </div>
@@ -113,27 +122,32 @@
     <div class="mt-4">
         <x-data-table
             title="Riwayat Verifikasi"
-            :data="$historyData"
-            :headers="['Nama UMKM', 'Email Pemilik', 'Tanggal Dibuat', 'Status Verifikasi', 'Aksi']"
+            :data="$historyTable"
+            :headers="['Profil UMKM', 'Email Pemilik', 'Tanggal Dibuat', 'Status Verifikasi', 'Aksi']"
             :addButton="false"
             :exportButton="false"
             :filterOptions="['verified', 'pending', 'rejected']">
 
-            @forelse ($historyData as $history)
+            @forelse ($historyTable as $index => $history)
                 <tr>
                     <td>
                         <div class="d-flex align-items-center gap-3">
-                            <div class="bg-light text-secondary rounded-circle d-flex justify-content-center align-items-center border" style="width: 35px; height: 35px;">
+                            <div class="bg-light text-secondary rounded-circle d-flex justify-content-center align-items-center border flex-shrink-0" style="width: 35px; height: 35px;">
                                 <i class="bi bi-shop"></i>
                             </div>
-                            <span class="fw-bold text-dark">
-                                {{ $history['umkm']['username'] ?? 'User Dihapus' }}
-                            </span>
+                            <div class="d-flex flex-column lh-sm">
+                                <span class="fw-bold text-dark">
+                                    {{ $history['umkm']['nama_usaha'] ?? 'Data UMKM Dihapus' }}
+                                </span>
+                                <small class="text-muted" style="font-size: 12px;">
+                                    Oleh: {{ $history['umkm']['user']['username'] ?? '-' }}
+                                </small>
+                            </div>
                         </div>
                     </td>
                     
                     <td class="text-dark">
-                        {{ $history['umkm']['email'] ?? '-' }}
+                        {{ $history['umkm']['user']['email'] ?? '-' }}
                     </td>
                     
                     <td class="text-muted">
@@ -145,15 +159,18 @@
                             <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-semibold">
                                 Terverifikasi
                             </span>
+                        @elseif(isset($history['verification_status']) && $history['verification_status'] === 'rejected')
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-2 fw-semibold">
+                                Ditolak
+                            </span>
                         @else
                             <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-2 fw-semibold">
-                                {{ ucfirst($history['verification_status'] ?? 'Pending') }}
+                                Pending
                             </span>
                         @endif
                     </td>
                     
                     <td>
-                        {{-- Tombol Aksi ngikutin gaya daftar user kamu --}}
                         <a href="#" class="btn btn-outline-success btn-sm">
                             <i class="bi bi-eye"></i>
                         </a>
@@ -174,43 +191,14 @@
                      style="width: calc(100% + 40px); margin: 0 -20px -20px -20px; padding: 15px 20px; border-top: 1px solid #dee2e6; border-radius: 0 0 12px 12px;">
                     
                     <p class="pagination-info mb-0 text-muted text-center text-md-start">
-                        Menampilkan <strong>{{ $historyData->firstItem() ?? 0 }} - {{ $historyData->lastItem() ?? 0 }}</strong> dari <strong>{{ $historyData->total() }}</strong> entri
+                        Menampilkan <strong>{{ $historyTable->firstItem() ?? 0 }} - {{ $historyTable->lastItem() ?? 0 }}</strong> dari <strong>{{ $historyTable->total() }}</strong> entri
                     </p>
                     
-                    <nav>
-                        <ul class="custom-pagination mb-0 justify-content-center flex-wrap">
-                            
-                            {{-- Tombol Previous --}}
-                            @if ($historyData->onFirstPage())
-                                <li class="page-item disabled">
-                                    <span class="page-link"><i class="bi bi-chevron-left"></i></span>
-                                </li>
-                            @else
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $historyData->previousPageUrl() }}"><i class="bi bi-chevron-left"></i></a>
-                                </li>
-                            @endif
-
-                            {{-- Deretan Angka Halaman --}}
-                            @foreach ($historyData->getUrlRange(1, $historyData->lastPage()) as $page => $url)
-                                <li class="page-item {{ $page == $historyData->currentPage() ? 'active' : '' }}">
-                                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
-                                </li>
-                            @endforeach
-
-                            {{-- Tombol Next --}}
-                            @if ($historyData->hasMorePages())
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $historyData->nextPageUrl() }}"><i class="bi bi-chevron-right"></i></a>
-                                </li>
-                            @else
-                                <li class="page-item disabled">
-                                    <span class="page-link"><i class="bi bi-chevron-right"></i></span>
-                                </li>
-                            @endif
-                            
-                        </ul>
-                    </nav>
+                    @if(isset($historyTable) && $historyTable->hasPages())
+                        <nav>
+                            {{ $historyTable->links('pagination::bootstrap-5') }}
+                        </nav>
+                    @endif
                 </div>
             </x-slot>
             

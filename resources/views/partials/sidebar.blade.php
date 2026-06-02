@@ -22,7 +22,7 @@
             <span>Dashboard</span>
         </x-side-link>
 
-        <x-side-link href="/admin/users" :active="request()->is('admin/users') || request()->is('admin/users/*/detail')">
+        <x-side-link href="/admin/users" :active="request()->is('admin/users') || request()->is('admin/users/*')">
             <i class="bi bi-person-circle"></i>
             <span>Daftar User</span>
         </x-side-link>

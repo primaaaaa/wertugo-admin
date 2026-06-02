@@ -62,9 +62,9 @@
                 <a href="{{ route('user.detail', $user['id'] ?? $user['_id']) }}" class="btn btn-outline-success">
                     <i class="bi bi-eye"></i>
                 </a>
-                <a class="btn btn-outline-danger">
+                <!-- <a class="btn btn-outline-danger">
                     <i class="bi bi-trash"></i>
-                </a>
+                </a> -->
             </td>
         </tr>
         @empty

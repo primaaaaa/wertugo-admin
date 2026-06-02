@@ -13,15 +13,15 @@
     <div class="row g-4">
         
         <div class="col-12 col-sm-6 col-xl-4">
-            <x-stat-card icon="bi-shop" iconColor="success" cardTitle="Total UMKM Aktif" :data="$stats['total_umkm']"></x-stat-card>
+            <x-stat-card icon="bi-shop" iconColor="success" cardTitle="Total UMKM Aktif" :data="$stats['total_umkm'] ?? 0"></x-stat-card>
         </div>
 
         <div class="col-12 col-sm-6 col-xl-4">
-            <x-stat-card icon="bi-check-circle-fill" iconColor="primary" cardTitle="Total UMKM Terverifikasi" :data="$stats['verified_umkm']"></x-stat-card>
+            <x-stat-card icon="bi-check-circle-fill" iconColor="primary" cardTitle="Total UMKM Terverifikasi" :data="$stats['verified_umkm'] ?? 0"></x-stat-card>
         </div>
 
         <div class="col-12 col-sm-6 col-xl-4">
-            <x-stat-card icon="bi-x-circle-fill" iconColor="danger" cardTitle="UMKM Ter-suspend" :data="0"></x-stat-card>
+            <x-stat-card icon="bi-x-circle-fill" iconColor="danger" cardTitle="UMKM Ter-suspend" :data="$stats['suspended_umkm'] ?? 0"></x-stat-card>
         </div>
     </div>
 
@@ -33,64 +33,80 @@
     :exportButton="false"
     :filterOptions="['verified', 'unverified', 'pending']">
 
-    @forelse ($umkm as $index => $user)
+    {{-- Saya ubah variabel $user menjadi $item agar tidak bingung dengan relasi 'user' --}}
+    @forelse ($umkm as $index => $item)
         <tr>
             <td>
                 <div class="d-flex align-items-center gap-3">
+                    {{-- Menarik foto profil dari relasi tabel Account --}}
+                    <x-default-profile-umkm :foto="$item['user']['foto_profil'] ?? null"></x-default-profile-umkm>
                     
-                    <x-default-profile-umkm :foto="$user['foto_profil'] ?? null"></x-default-profile-umkm>
                     <div class="d-flex flex-column lh-sm">
-                        
+                        {{-- Menampilkan Nama Usaha sebagai sorotan utama --}}
                         <span class="fw-semibold text-dark" style="font-size: 14px;">
-                            {{ $user['username'] }}
+                            {{ $item['nama_usaha'] ?? 'Nama Usaha Kosong' }}
                         </span>
                         
+                        {{-- Menampilkan Username Pemilik di bawahnya --}}
                         <small class="text-muted" style="font-size: 12px;">
-                            {{ $user['email'] }}
+                            Pemilik: <span class="fw-medium text-success">{{ $item['user']['username'] ?? 'Tidak Diketahui' }}</span>
                         </small>
-
                     </div>
                 </div>
             </td>
+
             <td>
-                <span class="{{ $user['account_status'] === 'active' ? 'badge text-bg-success' : 'badge text-bg-danger'}}">{{ $user['account_status'] ?? 'Active' }}</span>
+                @if(isset($item['is_open']) && $item['is_open'] == true)
+                    <span class="badge text-bg-success rounded-pill px-3 py-1 fw-medium" style="font-size: 11px;">Buka</span>
+                @else
+                    <span class="badge text-bg-danger rounded-pill px-3 py-1 fw-medium" style="font-size: 11px;">Tutup</span>
+                @endif
             </td>
 
             <td>
-                <span class="{{ $user['verification_status'] === 'verified' ? 'badge text-bg-success' : ($user['verification_status'] === 'pending' ? 'badge text-bg-warning' : 'badge text-bg-secondary')}}">{{ $user['verification_status'] ?? 'unverified' }}</span>
+                @php
+                    $verifStatus = $item['verification_status'] ?? 'unverified';
+                    $badgeClass = 'text-bg-secondary';
+                    
+                    if($verifStatus === 'verified') $badgeClass = 'text-bg-primary';
+                    elseif($verifStatus === 'pending') $badgeClass = 'text-bg-warning';
+                @endphp
+                <span class="badge {{ $badgeClass }} rounded-pill px-3 py-1 fw-medium" style="font-size: 11px;">
+                    {{ ucfirst($verifStatus) }}
+                </span>
             </td>
 
-            <td>
-                {{ $user['created_at'] }}
+            <td class="text-secondary" style="font-size: 13px;">
+                {{ isset($item['created_at']) ? \Carbon\Carbon::parse($item['created_at'])->format('d M Y') : '-' }}
             </td>
-
             <td>
-                <a class="btn btn-outline-success">
+                {{-- Arahkan ke route 'umkm.detail' dan bawa ID UMKM-nya --}}
+                <a href="{{ route('umkm.detail', $item['id']) }}" class="btn btn-outline-success btn-sm rounded-circle me-1" title="Lihat Detail">
                     <i class="bi bi-eye"></i>
                 </a>
-                <a class="btn btn-outline-danger">
+                
+                {{-- Tombol Hapus (opsional, biarkan jika belum ada fungsinya) --}}
+                <a href="#" class="btn btn-outline-danger btn-sm rounded-circle" title="Hapus UMKM">
                     <i class="bi bi-trash"></i>
                 </a>
             </td>
         </tr>
         @empty
         <tr>
-            <td colspan="6">Belum ada data user.</td>
+            <td colspan="5" class="text-center py-5 text-muted">Belum ada data UMKM yang terdaftar.</td>
         </tr>
     @endforelse
+    
     <x-slot name="footer">
-        {{-- TAMBAHAN: flex-column (untuk HP) dan flex-md-row (untuk Laptop), serta gap-3 biar ada jarak saat numpuk --}}
         <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-center bg-light gap-3" 
              style="width: calc(100% + 40px); margin: 0 -20px -20px -20px; padding: 15px 20px; border-top: 1px solid #dee2e6; border-radius: 0 0 12px 12px;">
             
-            {{-- TAMBAHAN: text-center di HP, text-md-start di Laptop --}}
-            <p class="pagination-info mb-0 text-muted text-center text-md-start">
-                Menampilkan <strong>{{ $umkm->firstItem() ?? 0 }} - {{ $umkm->lastItem() ?? 0 }}</strong> dari <strong>{{ $umkm->total() }}</strong> user
+            <p class="pagination-info mb-0 text-muted text-center text-md-start" style="font-size: 14px;">
+                Menampilkan <strong>{{ $umkm->firstItem() ?? 0 }} - {{ $umkm->lastItem() ?? 0 }}</strong> dari <strong>{{ $umkm->total() }}</strong> UMKM
             </p>
             
             <nav>
                 <ul class="custom-pagination mb-0 justify-content-center flex-wrap">
-                    
                     {{-- Tombol Previous --}}
                     @if ($umkm->onFirstPage())
                         <li class="page-item disabled">
@@ -119,17 +135,11 @@
                             <span class="page-link"><i class="bi bi-chevron-right"></i></span>
                         </li>
                     @endif
-                    
                 </ul>
             </nav>
-            
         </div>
     </x-slot>
-</x-data-table>
-
-
-
+    </x-data-table>
 </div>
-
 
 @endsection

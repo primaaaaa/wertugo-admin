@@ -49,7 +49,8 @@ Route::middleware(['admin.auth'])->group(function () {
     Route::get('/admin/report', [ReportController::class, 'index'])->name('report.index');
     Route::post('/admin/report/{id}/tindak', [ReportController::class, 'tindakReport'])->name('report.tindak');
 
-    Route::post('/admin/verifikasi/{id}/verify', [UmkmController::class, 'verifyUmkm'])->name('umkm.verify');
+    Route::get('/admin/umkm/{id}', [UmkmController::class, 'showDetail'])->name('umkm.detail');
+    Route::put('/admin/verifikasi/{id}/verify', [UmkmController::class, 'verifyUmkm'])->name('umkm.verify');
 });
 
 
