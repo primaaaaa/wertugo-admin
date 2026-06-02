@@ -60,7 +60,7 @@
                         {{ $stats['total_verification_pending'] }} Tertunda
                     </span>
                 </div>
-                <a href="#" class="btn btn-outline-success rounded-pill px-4" style="color: #0c7b1b; border-color: #0c7b1b;">
+                <a href="/admin/verifikasi/pending" class="btn btn-outline-success rounded-pill px-4" style="color: #0c7b1b; border-color: #0c7b1b;">
                     Lihat Semua Antrean
                 </a>
             </div>

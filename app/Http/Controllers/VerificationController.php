@@ -68,4 +68,74 @@ class VerificationController extends Controller
         $errorMsg = $response->json()['message'] ?? 'Gagal memverifikasi UMKM.';
         return back()->withErrors(['msg' => $errorMsg]);
     }
+
+    public function pendingList(Request $request)
+    {
+        // 1. Tangkap halaman aktif dari query string URL
+        $page = $request->input('page', 1);
+        $token = Session::get('api_token');
+        
+        // 2. URL endpoint API Backend khusus data pending
+        $url = env('WERTUGO_API') . '/verifikasi/pending'; 
+        
+        // 3. Ambil data dari Backend
+        $response = Http::withToken($token)->get($url, [
+            'page' => $page
+        ]);
+
+        if ($response->successful()) {
+            $apiData = $response->json();
+            $paginationData = $apiData['data'];
+            $totalPending = $apiData['total_pending'] ?? 0;
+
+            // 4. Bangun LengthAwarePaginator agar link halaman (1, 2, 3) di Blade aktif
+            $pendingTable = new LengthAwarePaginator(
+                $paginationData['data'],           // Array data item
+                $paginationData['total'],          // Total seluruh data pending di DB
+                $paginationData['per_page'],       // Jumlah data per halaman
+                $paginationData['current_page'],   // Halaman aktif saat ini
+                [
+                    'path' => $request->url(), 
+                    'query' => $request->query()
+                ]
+            );
+
+            return view('pages.verifikasi-pending', [
+                'pendingTable' => $pendingTable,
+                'totalPending' => $totalPending
+            ]);
+        }
+
+        // 5. Antisipasi jika sesi token kedaluwarsa
+        if ($response->status() === 401) {
+            Session::flush();
+            return redirect('/login')->withErrors(['email' => 'Sesi telah habis. Silakan login ulang.']);
+        }
+        
+        return abort($response->status(), 'Gagal mengambil data antrean verifikasi dari server.');
+    }
+    public function showDetail($id)
+    {
+        $token = Session::get('api_token');
+        $url = env('WERTUGO_API') . '/admin/verifikasi/' . $id;
+
+        $response = Http::withToken($token)->get($url);
+
+        if ($response->successful()) {
+            $apiData = $response->json();
+            
+            return view('pages.detail.verifikasi', [
+                'detail' => $apiData['data']
+            ]);
+        }
+
+        if ($response->status() === 401) {
+            Session::flush();
+            return redirect('/login')->withErrors(['email' => 'Sesi telah habis. Silakan login ulang.']);
+        }
+
+        return back()->withErrors(['msg' => 'Gagal mengambil detail verifikasi. Pastikan data masih tersedia.']);
+    }
+
+    
 }

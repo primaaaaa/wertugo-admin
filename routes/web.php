@@ -42,7 +42,6 @@ Route::middleware(['admin.auth'])->group(function () {
     Route::get('/admin/users', [UserController::class, 'index'])->name('daftar-user');
     Route::get('/admin/umkm', [UmkmController::class, 'index'])->name('daftar-umkm');
     Route::get('/admin/verifikasi-umkm', [VerificationController::class, 'index'])->name('daftar-verifikasi');
-    // Route::get('/admin/report', [ReportController::class, 'index'])->name('daftar-laporan');
 
     Route::get('/admin/users/{id}/detail', [UserController::class, 'showDetail'])->name('user.detail');
 
@@ -50,7 +49,9 @@ Route::middleware(['admin.auth'])->group(function () {
     Route::post('/admin/report/{id}/tindak', [ReportController::class, 'tindakReport'])->name('report.tindak');
 
     Route::get('/admin/umkm/{id}', [UmkmController::class, 'showDetail'])->name('umkm.detail');
+    Route::get('/admin/verifikasi/pending', [VerificationController::class, 'pendingList'])->name('verifikasi.pending');
     Route::put('/admin/verifikasi/{id}/verify', [UmkmController::class, 'verifyUmkm'])->name('umkm.verify');
+    Route::get('/admin/verifikasi/{id}/detail', [VerificationController::class, 'showDetail'])->name('verifikasi.detail');
 });
 
 

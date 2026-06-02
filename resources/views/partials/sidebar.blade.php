@@ -27,12 +27,12 @@
             <span>Daftar User</span>
         </x-side-link>
 
-        <x-side-link href="/admin/umkm" :active="request()->is('admin/umkm') || request()->is('admin/umkm-detail/*')">
+        <x-side-link href="/admin/umkm" :active="request()->is('admin/umkm') || request()->is('admin/umkm/*')">
             <i class="bi bi-shop"></i>
             <span>Daftar UMKM</span>
         </x-side-link>
 
-        <x-side-link href="/admin/verifikasi-umkm" :active="request()->is('admin/verifikasi-umkm') || request()->is('admin/verifikasi-detail/*')">
+        <x-side-link href="/admin/verifikasi-umkm" :active="request()->is('admin/verifikasi-umkm') || request()->is('admin/verifikasi/*')">
             <i class="bi bi-file-earmark-fill"></i>
             <span>Verifikasi UMKM</span>
         </x-side-link>
