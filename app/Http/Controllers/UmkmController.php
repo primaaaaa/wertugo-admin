@@ -56,5 +56,18 @@ class UmkmController extends Controller
         return abort($response->status(), 'Gagal mengambil data dari server.');
     }
 
+    public function verifyUmkm(Request $request, $id)
+    {
+        $token = Session::get('api_token');
+
+        // Tembak API menggunakan metode PUT
+        $response = Http::withToken($token)->put(env('WERTUGO_API').'/umkm/'.$id.'/verify');
+
+        if ($response->successful()) {
+            return back()->with('success', 'Status UMKM berhasil diubah menjadi Verified!');
+        }
+
+        return back()->withErrors(['msg' => 'Gagal memverifikasi UMKM. Pastikan server aktif.']);
+    }
 
 }

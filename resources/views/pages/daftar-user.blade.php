@@ -59,7 +59,7 @@
             </td>
 
             <td>
-                <a class="btn btn-outline-success">
+                <a href="{{ route('user.detail', $user['id'] ?? $user['_id']) }}" class="btn btn-outline-success">
                     <i class="bi bi-eye"></i>
                 </a>
                 <a class="btn btn-outline-danger">
