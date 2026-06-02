@@ -61,16 +61,21 @@ class ReportController extends Controller
     }
 
     // Method Eksekutor untuk menindak laporan (Suspend)
-    public function tindakReport($id)
+    public function tindakReport(Request $request, $id)
     {
         $token = Session::get('api_token');
         $url = env('WERTUGO_API') . '/reports/' . $id . '/tindak';
 
-        // Tembak API menggunakan metode PUT
-        $response = Http::withToken($token)->put($url);
+        // Tembak API menggunakan PUT dengan membawa form + comment_id
+        $response = Http::withToken($token)->put($url, [
+            'aksi_komentar'    => $request->input('aksi_komentar'),
+            'status_akun'      => $request->input('status_akun'),
+            'catatan_internal' => $request->input('catatan_internal'),
+            'comment_id'       => $request->input('comment_id'), // DATA BARU
+        ]);
 
         if ($response->successful()) {
-            return back()->with('success', 'Pelanggaran berhasil ditindak dan entitas terkait telah disuspend!');
+            return back()->with('success', 'Laporan berhasil ditindaklanjuti sesuai pilihan Anda!');
         }
 
         $errorMsg = $response->json()['message'] ?? 'Gagal menindak laporan pelanggaran.';

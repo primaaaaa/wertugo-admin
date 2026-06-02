@@ -5,6 +5,21 @@
 @section('admin-content')
 
 <div class="container-fluid p-4">
+    {{-- TAMPILKAN PESAN SUKSES --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    {{-- TAMPILKAN PESAN ERROR --}}
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ $errors->first() }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
     <div class="mb-5">
         <h3 class="fw-bold text-dark mb-1">Report Notice</h3>
         <p class="text-muted small">Kelola dan tindak lanjuti laporan pelanggaran dari pengguna.</p>
@@ -82,19 +97,20 @@
                         {{ isset($report['created_at']) ? \Carbon\Carbon::parse($report['created_at'])->format('d M Y') : '-' }}
                     </td>
 
+                    <!-- 6. AKSI (TINDAK) -->
                     <td class="text-center">
                         <div class="d-flex flex-column gap-1 align-items-center justify-content-center">
-                            <a href="#" class="text-success text-decoration-none fw-bold" style="font-size: 12px;">Lihat</a>
+                            <!-- <a href="#" class="text-success text-decoration-none fw-bold" style="font-size: 12px;">Lihat</a> -->
                             
                             @if(isset($report['report_status']) && $report['report_status'] === 'finished')
                                 <span class="badge bg-secondary rounded-pill px-3 py-2 mt-1">Selesai</span>
                             @else
-                                <form action="{{ route('report.tindak', $report['id'] ?? $report['_id']) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menindak (suspend) target ini?');">
-                                    @csrf
-                                    <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3 py-1 fw-bold shadow-sm mt-1" style="font-size: 12px; background-color: #b91c1c; border: none;">
-                                        Tindak
-                                    </button>
-                                </form>
+                                <!-- TOMBOL PEMICU MODAL (TETAP DI SINI) -->
+                                <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 py-1 fw-bold shadow-sm mt-1" 
+                                        style="font-size: 12px; background-color: #b91c1c; border: none;" 
+                                        data-bs-toggle="modal" data-bs-target="#tindakModal{{ $loop->iteration }}">
+                                    Tindak
+                                </button>
                             @endif
                         </div>
                     </td>
@@ -158,4 +174,77 @@
     </div>
 </div>
 
+
+@foreach($reports as $report)
+    @if(isset($report['report_status']) && $report['report_status'] !== 'finished')
+        <!-- Perhatikan ID-nya pakai $loop->iteration -->
+        <div class="modal fade" id="tindakModal{{ $loop->iteration }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 rounded-4 shadow-lg">
+                    
+                    <div class="modal-header border-bottom-0 pb-0 mt-2 px-4">
+                        <h5 class="modal-title fw-bold text-dark" style="font-size: 1.1rem;">Tindak Lanjut Laporan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    
+                    <form action="{{ route('report.tindak', $report['id'] ?? $report['_id']) }}" method="POST">
+                        @csrf
+                        
+                        {{-- TITIPAN ID KOMENTAR (TIDAK TERLIHAT DI UI) --}}
+                        <input type="hidden" name="comment_id" value="{{ $report['comment_id'] ?? '' }}">
+                        
+                        <div class="modal-body px-4 py-3 text-start">
+                            <!-- Kotak Komentar yang Dilaporkan -->
+                            <div class="bg-light rounded-3 p-3 mb-4 border" style="background-color: #f8fafc !important;">
+                                <small class="text-success fw-bold d-block mb-2" style="font-size: 10px; letter-spacing: 0.5px; color: #2d6a4f !important;">
+                                    KOMENTAR YANG DILAPORKAN
+                                </small>
+                                <p class="mb-0 text-dark fst-italic" style="font-size: 13px;">
+                                    "{{ $report['report_message'] ?? 'Komentar tidak tersedia.' }}"
+                                </p>
+                            </div>
+
+                            <!-- Dropdown Aksi Komentar -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-dark" style="font-size: 13px;">Aksi Komentar</label>
+                                <select name="aksi_komentar" class="form-select form-select-sm bg-light border-0 py-2" style="font-size: 13px;">
+                                    <option value="hapus">Hapus Komentar</option>
+                                    <option value="biarkan">Biarkan Komentar (Abaikan)</option>
+                                </select>
+                            </div>
+
+                            <!-- Dropdown Status Akun -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-dark" style="font-size: 13px;">Status Akun Komentator</label>
+                                <select name="status_akun" class="form-select form-select-sm bg-light border-0 py-2" style="font-size: 13px;">
+                                    <option value="aktif">Tetap Aktif</option>
+                                    <option value="suspend">Suspend Akun</option>
+                                </select>
+                            </div>
+
+                            <!-- Catatan Internal -->
+                            <div class="mb-2">
+                                <label class="form-label fw-bold text-dark" style="font-size: 13px;">
+                                    Catatan Internal <span class="text-muted fw-normal">(Opsional)</span>
+                                </label>
+                                <textarea name="catatan_internal" class="form-control bg-light border-0" rows="3" 
+                                          placeholder="Masukkan alasan atau catatan tambahan..." style="font-size: 13px;"></textarea>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="modal-footer border-top-0 pt-0 px-4 pb-4 d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-light fw-bold text-success border-0 px-3" data-bs-dismiss="modal" style="color: #2d6a4f !important;">Batal</button>
+                            <button type="submit" class="btn text-white rounded-pill px-4 fw-bold shadow-sm" style="background-color: #2d6a4f; font-size: 14px;">
+                                Terapkan Tindakan
+                            </button>
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    @endif
+@endforeach
 @endsection
+
